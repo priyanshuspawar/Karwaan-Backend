@@ -45,4 +45,3 @@ app.listen(PORT, async () => {
         Logger.error(error.message);
     }
 })
-export default app
