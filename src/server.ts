@@ -28,6 +28,7 @@ export const s3 = new AWS.S3({
     accessKeyId: process.env.DIGITAL_OCEAN_BUCKET_ACCESS_ID!,
     secretAccessKey: process.env.DIGITAL_OCEAN_BUCKET_SECRET_ACCESS_KEY,
     region: 'ap-south-1',
+    signatureVersion: 'v4',
 });
 
 export const razorPayInstance = new Razorpay({

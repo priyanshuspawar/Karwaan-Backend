@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { addProduct, deleteProduct, getAllAdmin, getAllCustomer, getAllUsers, getDashboardData, getOrders, getRevenueGenerated, getSingleCustomer, getSingleOrder, getTopProducts, getWorstProducts, updateProduct } from "../controller/admin";
+import { addProduct, deleteProduct, getAllAdmin,getPresignedUrl,addProductNew ,getAllCustomer, getAllUsers, getDashboardData, getOrders, getRevenueGenerated, getSingleCustomer, getSingleOrder, getTopProducts, getWorstProducts, updateProduct } from "../controller/admin";
 import { verifyAdmin } from "../middleware/verifyAdmin";
 import { verifyToken } from "../middleware/verifyToken";
 
 const router = Router();
-
-router.route('/create-product').post(verifyToken, verifyAdmin, addProduct);
+// todo: implement middleware in this getS3
+router.route('/getS3').get(getPresignedUrl);
+router.route('/create-product').post(verifyToken, verifyAdmin, addProductNew);
 router.route('/update-product/:id').put(verifyToken, verifyAdmin, updateProduct);
 router.route('/delete-product/:id').delete(verifyToken, verifyAdmin, deleteProduct);
 router.route('/get-users').get(verifyToken, verifyAdmin, getAllUsers);

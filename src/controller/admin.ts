@@ -1,4 +1,4 @@
-import { Request, Response, request } from "express";
+import { Request, Response, request, } from "express";
 import { errorHandler } from "../middleware/errorHandler";
 import { ProductServices } from "../services/ProductServices";
 import Product from "../model/product";
@@ -8,6 +8,32 @@ import { Types, isObjectIdOrHexString, isValidObjectId } from "mongoose";
 import { ResponseData } from "../utils/ResponseData";
 import { s3 } from "../server";
 import { PaymentServices } from "../services/PaymentServices";
+import crypto from 'crypto'
+
+
+export const addProductNew = errorHandler(async (request:Request, response:Response)=>{
+    let data: ResponseData;
+    const { userId, name, tags, price, description,url } = request.body;
+    console.log(url)
+    if (!userId || !name || !tags || !description || !price || !url) {
+        data = new ResponseData("error", 400, "Invalid payload", null);
+        return response.status(data.statusCode).json(data);
+    }
+
+    const newProduct = new Product({
+        userId: userId,
+        name: name,
+        tags: tags,
+        price: price,
+        description: description,
+        url: url,
+    });
+
+    await newProduct.save();
+    data = new ResponseData("success", 200, "Product added successfully", newProduct);
+    return response.status(data.statusCode).json(data);
+
+})
 
 export const addProduct = errorHandler(async (request: Request, response: Response) => {
     let data: ResponseData;
@@ -68,6 +94,18 @@ export const addProduct = errorHandler(async (request: Request, response: Respon
     data = new ResponseData("success", 200, "Product added successfully", newProduct);
     return response.status(data.statusCode).json(data);
 });
+
+export const getPresignedUrl = errorHandler(async(request:Request, response:Response)=>{
+    const imageName = crypto.randomBytes(16).toString('hex');
+    const params = ({
+        Bucket: "karwaan-bucket",
+        Key: imageName,
+        Expires:3600,
+        ACL: 'public-read',
+    })
+    const uploadUrl = await s3.getSignedUrlPromise("putObject",params)
+    return response.status(200).json({url: uploadUrl})
+})
 
 export const updateProduct = errorHandler(async (request: Request, response: Response) => {
     let data;
