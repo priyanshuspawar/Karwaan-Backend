@@ -14,7 +14,7 @@ import crypto from 'crypto'
 export const addProductNew = errorHandler(async (request:Request, response:Response)=>{
     let data: ResponseData;
     const { userId, name, tags, price, description,url } = request.body;
-    console.log(url)
+    
     if (!userId || !name || !tags || !description || !price || !url) {
         data = new ResponseData("error", 400, "Invalid payload", null);
         return response.status(data.statusCode).json(data);
@@ -110,6 +110,19 @@ export const getPresignedUrl = errorHandler(async(request:Request, response:Resp
 export const updateProduct = errorHandler(async (request: Request, response: Response) => {
     let data;
 
+    if (!isObjectIdOrHexString(request.params.id)) {
+        data = new ResponseData("error", 400, "Please enter a valid userId", null);
+        return response.status(data.statusCode).json(data);
+    }
+
+    const productId = request.params.id;
+    const payload = { productId, ...request.body };
+
+    data = await ProductServices.updateProduct(payload);
+    return response.status(data.statusCode).json(data);
+});
+export const updateProductNew = errorHandler(async (request: Request, response: Response) => {
+    let data;
     if (!isObjectIdOrHexString(request.params.id)) {
         data = new ResponseData("error", 400, "Please enter a valid userId", null);
         return response.status(data.statusCode).json(data);

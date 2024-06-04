@@ -12,6 +12,7 @@ type UpdateProductPayload = {
     linkToMedia: string;
     isFreeToUse: boolean;
     productId: string;
+    url: string;
 }
 
 type DeleteProductPayload = {
@@ -43,9 +44,9 @@ export class ProductServices {
     }
 
     static async updateProduct (payload: UpdateProductPayload) {
-        const {userId, name, tags, description, price, linkToMedia, isFreeToUse, productId} = payload;
+        const {userId, name, tags, description, price, linkToMedia, isFreeToUse, productId,url} = payload;
 
-        if(!userId || (!name && !tags && !description && !price && !linkToMedia)){
+        if(!userId || (!name && !tags && !description && !price && !linkToMedia && !url)){
             return new ResponseData("error", 400, "Invalid payload", null);
         }
 
@@ -65,6 +66,7 @@ export class ProductServices {
             tags: tags,
             description: description,
             price: price,
+            url: url
           
         }}, {new: true});
 
