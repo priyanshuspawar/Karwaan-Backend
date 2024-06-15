@@ -186,6 +186,7 @@ export class UserServices {
         }
 
         const time = Date.now();
+        console.log("@@",time,user.verifyEmailTokenExpire)
         if (time > user.verifyEmailTokenExpire) {
             data = new ResponseData("error", 400, "Your verification code has expired, please generate a new code to continue.", null);
             return data;

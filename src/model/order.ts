@@ -14,6 +14,17 @@ interface OrderInterface extends Document {
     status: "PAYMENT PENDING" | "PAYMENT COMPLETE" | "PAYMENT FAILED";
     amount: number;
     payment_id: string;
+    shipping_details:{
+        houseNumber: string;
+        buildingName: string;
+        country: string;
+        state: string;
+        city: string;
+        street: string;
+        contactNumber?: string;
+        pin: string;
+    }
+    
 }
 
 const OrderSchema = new mongoose.Schema(
@@ -29,6 +40,16 @@ const OrderSchema = new mongoose.Schema(
         status: { type: String, default: "PAYMENT PENDING", required: true },
         payment_id: { type: String, default: null },
         amount: { type: Number, required: true },
+        shipping_details:{
+            houseNumber: {type: String, required: true},
+            buildingName: {type: String, required: false},
+            street: {type: String, required: true},
+            city: {type: String, required: true},
+            state: {type: String, required: true},
+            country: {type: String, required: true},
+            pin: {type: String, required: true},
+            contactNumber:{type:String},
+        }
     },
     { timestamps: true }
 );
