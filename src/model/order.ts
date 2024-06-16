@@ -11,6 +11,7 @@ type Products = {
 interface OrderInterface extends Document {
     products: Products[];
     userId: string;
+    userDetails:{email: string,clientName: string}
     status: "PAYMENT PENDING" | "PAYMENT COMPLETE" | "PAYMENT FAILED";
     amount: number;
     payment_id: string;
@@ -37,6 +38,10 @@ const OrderSchema = new mongoose.Schema(
             },
         ],
         userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        userDetails: {
+            email: { type: Schema.Types.String, required: true},
+            clientName: { type: Schema.Types.String, required: true}
+        },
         status: { type: String, default: "PAYMENT PENDING", required: true },
         payment_id: { type: String, default: null },
         amount: { type: Number, required: true },

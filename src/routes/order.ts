@@ -6,7 +6,7 @@ import { verifyAddress } from "../middleware/verifyAddress";
 
 const router = Router();
 router.route("/verify").post(verify)
-router.route("/getmyorders/:userid").get(getMyOrders)
+router.route("/getmyorders/:id").get(getMyOrders)
 router.route('/').post(verifyToken, verifyCredentials, verifyAddress, createOrderNew);
 router.route("/:orderid").get(getOrderDetails)
 // router.route('/:id').put(verifyToken, verifyCredentials, updateOrderPaymentStatus);

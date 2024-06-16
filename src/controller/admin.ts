@@ -340,42 +340,7 @@ export const getWorstProducts = errorHandler(async (Request: Request, response: 
 
 export const getOrders = errorHandler(async (req: Request, res: Response) => {
     const orders = await Order.find({ status: "PAYMENT COMPLETE" }).sort({ createdAt: 1 });
-    const responseArray: any[] = [];
-
-    orders.map(async (order) => {
-        const obj: { [key: string]: any } = {};
-        const user = await User.findById(order.userId);
-        if (!user) {
-            const data = new ResponseData("error", 400, "User not found", null);
-            return res.status(data.statusCode).json(data);
-        }
-
-        obj.userDetails = user;
-        obj.status = order.status;
-        obj.paymentId = await PaymentServices.fetchStandardPaymentLinkById(order.payment_id);
-
-        const productsArray: any[] = [];
-        order.products.map(async (product) => {
-            const productDetails = await Product.findById(product.productId);
-
-            if (!productDetails) {
-                const data = new ResponseData("error", 400, "Product not found", null);
-                return res.status(data.statusCode).json(data);
-            }
-
-            const productObj: { [key: string]: any } = { ...productDetails };
-
-            productObj.quantity = product.quantity;
-            productObj.size = product.size;
-
-            productsArray.push(productObj);
-        });
-
-        obj.products = productsArray;
-        responseArray.push(obj);
-    });
-
-    const data = new ResponseData("success", 200, "Success", responseArray);
+    const data = new ResponseData("success", 200, "Success", orders);
     return res.status(data.statusCode).json(data);
 });
 
@@ -387,7 +352,7 @@ export const getSingleOrder = errorHandler(async (req: Request, res: Response) =
     }
 
     if (!isValidObjectId(orderId)) {
-        const data = new ResponseData("error", 400, "Order id is not an object id.", null);
+        const data = new ResponseData("error", 400, "Not valid object id", null);
         return res.status(data.statusCode).json(data);
     }
 
@@ -399,30 +364,32 @@ export const getSingleOrder = errorHandler(async (req: Request, res: Response) =
 
     const obj: { [key: string]: any } = {};
     const userDetails = await User.findById(order.userId);
+    const shippingDetails = await Order.findOne({_id:orderId,status:"PAYMENT COMPLETE"})
     if (!userDetails) {
         const data = new ResponseData("error", 400, "User not found.", null);
         return res.status(data.statusCode).json(data);
     }
     obj.userDetails = userDetails;
-    const productArray: any[] = []
+    obj.amount = order.amount;
 
-    order.products.map(async (productDetails) => {
-        const orderedProduct = await Product.findById(productDetails.productId);
-        if (!orderedProduct) {
-            const data = new ResponseData("error", 400, "Product not found.", null);
-            return res.status(data.statusCode).json(data);
-        }
+    let responseArray: { [key: string]: any }[] = [];
+    for (let i in order.products) {
+        const orderedProduct = order.products[i];
+        const product = await Product.findById(orderedProduct.productId);
 
-        const product: {[key: string]: any} = {...orderedProduct};
-        product.quantity = productDetails.quantity;
-        product.size = productDetails.size;
+        const responseObj: { [key: string]: any } = {};
 
-        productArray.push(product);
-    });
+        responseObj.productDetails = product;
+        responseObj.quantity = orderedProduct.quantity;
+        responseObj.size = orderedProduct.size;
 
-    obj.paymentDetails = await PaymentServices.fetchStandardPaymentLinkById(order.payment_id);
+            responseArray.push(responseObj);
+    }
+    
+    obj.razorpay_paymentid = order.payment_id;
+    obj.products = responseArray;
     obj.paymentStatus = order.status;
-
+    obj.shippingDetails = shippingDetails?.shipping_details
     const data = new ResponseData("success", 200, "Success", obj);
     return res.status(data.statusCode).json(data);
 });

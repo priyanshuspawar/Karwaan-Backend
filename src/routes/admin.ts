@@ -17,7 +17,7 @@ router.route('/revenue-generated').get(verifyToken, verifyAdmin, getRevenueGener
 router.route('/get-dashboard-data').get(verifyToken, verifyAdmin, getDashboardData);
 router.route('/get-top-products').get(verifyToken, verifyAdmin, getTopProducts);
 router.route('/get-worst-products').get(verifyToken, verifyAdmin, getWorstProducts);
-router.route('/order').get(verifyToken, verifyAdmin, getOrders);
-router.route('/order/:id').get(verifyToken, verifyAdmin, getSingleOrder);
+router.route('/order').get(getOrders);
+router.route('/order/:id').get(getSingleOrder);
 
 export default router;

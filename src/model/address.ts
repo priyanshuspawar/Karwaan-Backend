@@ -17,10 +17,10 @@ const AddressSchema = new mongoose.Schema({
     userId: {type: String, required: true},
     houseNumber: {type: String, required: true},
     buildingName: {type: String, required: false},
-    street: {type: String, required: true},
+    street: {type: String, required: false},
     city: {type: String, required: true},
     state: {type: String, required: true},
-    country: {type: String, required: true},
+    country: {type: String, required: false},
     pin: {type: String, required: true},
 }, {timestamps: true});
 

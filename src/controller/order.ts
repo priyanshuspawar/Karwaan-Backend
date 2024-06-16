@@ -9,6 +9,7 @@ import { CartItemServices } from "../services/CartItemServices";
 import Product from "../model/product";
 import { razorPayInstance } from "../server";
 import crypto from 'crypto';
+
 type CreateOrderPayload = {
     userId: string;
     products: {
@@ -45,17 +46,30 @@ const generatedSignature = (
     return sig;
    };
 
-
+interface jwt_payload{
+    email: string;
+}
 
 export const getMyOrders = errorHandler(async (request:Request,response:Response)=>{
-    
+    const {id:userId} = request.params;
+    if(!userId){
+        return response.status(404).json({error:404,message:"User id not present"})
+    }
+    const user = await User.findById(userId);
+    if(!user){
+        return response.status(404).json({error:404,message:"User not found"})
+    }
+    const myOrders = await Order.find({userId:userId,status:"PAYMENT COMPLETE"}).sort({ createdAt: 1 }).exec()
+    return response.status(200).json({status:"success",data:[...myOrders]})
+
 })
 
 export const createOrderNew = errorHandler(async (request: Request, response: Response)=>{
     // console.log("@@",request.body)
     // check items
     const {userId,products,shipping_details} = request.body as CreateOrderPayload;
-    if (!userId || !products) {
+    
+    if (!userId || !products || !shipping_details.buildingName || !shipping_details.houseNumber || !shipping_details.street || !shipping_details.state || !shipping_details.city || !shipping_details.pin) {
         return new ResponseData("error", 400, "Invalid please try again", null);
     }
 
@@ -68,6 +82,8 @@ export const createOrderNew = errorHandler(async (request: Request, response: Re
     if (!user) {
         return new ResponseData("error", 400, "User not found", null);
     }
+    const userDetails = await User.findById(userId)
+    
     let totalAmount = 0
     for (let i in products) {
         const productPayload = products[i];
@@ -112,6 +128,7 @@ export const createOrderNew = errorHandler(async (request: Request, response: Re
 
     let newOrder = await Order.create({
         userId: userId,
+        userDetails:{email:userDetails?.email, clientName:`${userDetails?.firstName} ${userDetails?.lastName}`},
         products: products,
         shipping_details:shipping_details,
         status: "PAYMENT PENDING",
